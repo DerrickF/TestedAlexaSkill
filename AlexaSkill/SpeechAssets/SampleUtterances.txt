@@ -1,18 +1,7 @@
-﻿HelloWorldIntent say hello
-HelloWorldIntent say hello world
-HelloWorldIntent hello
-HelloWorldIntent say hi
-HelloWorldIntent say hi world
-HelloWorldIntent hi
-HelloWorldIntent how are you
+﻿PlayLatestIntent play the latest episode
+PlayLatestIntent play the newest episode
+PlayLatestIntent play the most recent episode
 
-MyNameIsIntent  my name is {john|Name}
-MyNameIsIntent  my name is {sam brown|Name}
-
-WhatsMyNameIntent whats my name
-WhatsMyNameIntent what is my name
-WhatsMyNameIntent say my name
-WhatsMyNameIntent tell me my name
-WhatsMyNameIntent tell me what my name is
-
-ComplementIntent give {audra|FirstName} a complement
+PlayLatestIntent start the latest episode
+PlayLatestIntent start the newest episode
+PlayLatestIntent start the most recent episode

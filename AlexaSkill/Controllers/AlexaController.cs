@@ -10,7 +10,7 @@ namespace AlexaSkill.Controllers
         [HttpPost, Route("api/alexa/demo")]
         public HttpResponseMessage SampleSession()
         {
-            var speechlet = new SampleSessionSpeechlet();
+            var speechlet = new SessionSpeechlet();
             return speechlet.GetResponse(Request);
         } 
     }
