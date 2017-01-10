@@ -1,7 +1,11 @@
 ﻿//  Copyright 2015 Stefan Negritoiu (FreeBusy). See LICENSE file for more information.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
+using System.ServiceModel.Syndication;
+using System.Xml;
 using AlexaSkill;
 using AlexaSkillsKit.Authentication;
 using AlexaSkillsKit.Json;
@@ -55,7 +59,7 @@ namespace Sample.Controllers
             // Note: If the session is started with an intent, no welcome message will be rendered;
             // rather, the intent specific response will be returned.
            
-            if ("PlayLatest".Equals(intentName))
+            if ("PlayLatestIntent".Equals(intentName))
             {
                 return PlayLatestPodcast(intent);
             }
@@ -67,21 +71,43 @@ namespace Sample.Controllers
 
         private SpeechletResponse PlayLatestPodcast(Intent intent)
         {
-            var feedUrl ="http://ajax.googleapis.com/ajax/services/feed/load?v=1.0&num=10&q=http://www.tested.com/podcast-xml/this-is-only-a-test/";
+            //var feedUrl ="http://ajax.googleapis.com/ajax/services/feed/load?v=1.0&num=10&q=http://www.tested.com/podcast-xml/this-is-only-a-test/";
 
-            string responseString;
+            //string responseString;
 
-            using (var client = new HttpClient())
+            //using (var client = new HttpClient())
+            //{
+            //    responseString = client.GetStringAsync(feedUrl).Result;
+            //}
+            //PodcastFeed feed = JsonConvert.DeserializeObject<PodcastFeed>(responseString);
+            //var temp = feed.responseData.feed.entries[0];
+
+            string url = "http://www.tested.com/podcast-xml/this-is-only-a-test/";
+            XmlReader reader = XmlReader.Create(url);
+            SyndicationFeed feed = SyndicationFeed.Load(reader);
+            reader.Close();
+
+            var episodes = feed.Items.ToList();
+            var latestEpisodeUrl = episodes[0].Links[1].Uri.OriginalString;
+
+
+            var directive = new Directive()
             {
-                responseString = client.GetStringAsync(feedUrl).Result;
-            }
-            PodcastFeed feed = JsonConvert.DeserializeObject<PodcastFeed>(responseString);
-            
-            
-
+                Type = "AudioPlayer.Play",
+                PlayBehavior = "REPLACE_ALL",
+                AudioItem = new AudioItem()
+                {
+                    Stream = new Stream()
+                    {
+                        Token = "episode",
+                        Url = latestEpisodeUrl,
+                        OffsetInMilliseconds = 0
+                    }
+                }
+            };
 
             string speechOutput = "";
-            return BuildSpeechletResponse(intent.Name, speechOutput, false);
+            return BuildSpeechletResponse(intent.Name, speechOutput, false, directive);
         }
 
 
@@ -104,7 +130,7 @@ namespace Sample.Controllers
 
             // Setting shouldEndSession to false to not end the session and
             // prompt the user for input
-            return BuildSpeechletResponse("Welcome",speechOutput, true);
+            return BuildSpeechletResponse("Welcome",speechOutput, true, null);
         }
 
 
@@ -119,14 +145,12 @@ namespace Sample.Controllers
          *            should the session be closed
          * @return SpeechletResponse spoken and visual response for the given input
          */
-        private SpeechletResponse BuildSpeechletResponse(string title, string output, bool shouldEndSession)
+        private SpeechletResponse BuildSpeechletResponse(string title, string output, bool shouldEndSession, Directive directive)
         {
             // Create the Simple card content.
             SimpleCard card = new SimpleCard();
             card.Title = String.Format("SessionSpeechlet - {0}", title);
             card.Content = String.Format("SessionSpeechlet - {0}", output);
-
-            
 
             // Create the plain text output.
             PlainTextOutputSpeech speech = new PlainTextOutputSpeech();
@@ -138,8 +162,10 @@ namespace Sample.Controllers
             response.OutputSpeech = speech;
             response.Card = card;
 
+            var directives = new List<Directive>();
+            directives.Add(directive);
+            response.Directives = directives;
             
-
             return response;
         }
 

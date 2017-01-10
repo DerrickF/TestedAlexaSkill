@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace AlexaSkill
+namespace AlexaSkillsKit.UI
 {
     public class Directive
     {
@@ -23,4 +24,5 @@ namespace AlexaSkill
         public string Url { get; set; }
         public int OffsetInMilliseconds { get; set; }
     }
+    
 }

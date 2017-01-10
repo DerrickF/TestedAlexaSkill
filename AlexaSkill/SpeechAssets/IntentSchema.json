@@ -1,33 +1,13 @@
 ﻿{
   "intents": [
     {
-      "intent": "HelloWorldIntent"
+      "intent": "PlayLatestIntent"
     },
     {
-      "intent": "MyNameIsIntent",
-      "slots": [
-        {
-          "name": "Name",
-          "type": "LITERAL"
-        }
-      ]
+      "intent": "AMAZON.PauseIntent"
     },
     {
-      "intent": "WhatsMyNameIntent",
-      "slots": []
-    },
-
-    {
-      "intent": "AMAZON.HelpIntent"
-    },
-    {
-      "intent": "ComplementIntent",
-      "slots": [
-        {
-          "firstName": "FirstName",
-          "type":  "LITERAL" 
-        }
-      ]  
+      "intent": "AMAZON.ResumeIntent"
     }
   ]
-}
+ }

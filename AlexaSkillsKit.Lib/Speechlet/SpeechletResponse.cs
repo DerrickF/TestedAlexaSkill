@@ -1,6 +1,7 @@
 ﻿//  Copyright 2015 Stefan Negritoiu (FreeBusy). See LICENSE file for more information.
 
 using System;
+using System.Collections.Generic;
 using AlexaSkillsKit.UI;
 
 namespace AlexaSkillsKit.Speechlet
@@ -26,5 +27,7 @@ namespace AlexaSkillsKit.Speechlet
             get;
             set;
         }
+
+        public virtual List<Directive> Directives { get; set; }
     }
 }
