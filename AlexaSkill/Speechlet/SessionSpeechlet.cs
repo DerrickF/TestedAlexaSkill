@@ -13,6 +13,7 @@ using NLog;
 using AlexaSkillsKit.Speechlet;
 using AlexaSkillsKit.Slu;
 using AlexaSkillsKit.UI;
+using Microsoft.Ajax.Utilities;
 using Newtonsoft.Json;
 
 namespace Sample.Controllers
@@ -54,33 +55,76 @@ namespace Sample.Controllers
 
             // Get intent from the request object.
             Intent intent = request.Intent;
-            string intentName = (intent != null) ? intent.Name : null;
+            string intentName = intent?.Name;
 
             // Note: If the session is started with an intent, no welcome message will be rendered;
             // rather, the intent specific response will be returned.
+
+            switch (intentName)
+            {
+                case "PlayLatestIntent":
+                {
+                    return PlayLatestPodcast(intent);
+                   
+                }
+                case "PlayRandomIntent":
+                {
+                    return PlayLatestPodcast(intent);
+                }
+                default:
+                {
+                    throw new SpeechletException("Invalid Intent Name");
+                }
+               
+
+            }
+            
            
-            if ("PlayLatestIntent".Equals(intentName))
-            {
-                return PlayLatestPodcast(intent);
-            }
-            else
-            {
-                throw new SpeechletException("Invalid Intent");
-            }
+            //if ("PlayLatestIntent".Equals(intentName))
+            //{
+            //    return PlayLatestPodcast(intent);
+            //}
+            //else
+            //{
+            //    throw new SpeechletException("Invalid Intent");
+            //}
         }
 
         private SpeechletResponse PlayLatestPodcast(Intent intent)
         {
-            //var feedUrl ="http://ajax.googleapis.com/ajax/services/feed/load?v=1.0&num=10&q=http://www.tested.com/podcast-xml/this-is-only-a-test/";
 
-            //string responseString;
+            string url = "http://www.tested.com/podcast-xml/this-is-only-a-test/";
+            XmlReader reader = XmlReader.Create(url);
+            SyndicationFeed feed = SyndicationFeed.Load(reader);
+            reader.Close();
 
-            //using (var client = new HttpClient())
-            //{
-            //    responseString = client.GetStringAsync(feedUrl).Result;
-            //}
-            //PodcastFeed feed = JsonConvert.DeserializeObject<PodcastFeed>(responseString);
-            //var temp = feed.responseData.feed.entries[0];
+            var episodes = feed.Items.ToList();
+
+            var random = new Random();
+            var index = random.Next(0, episodes.Count);
+            var latestEpisodeUrl = episodes[index].Links[1].Uri.OriginalString;
+
+            var directive = new Directive()
+            {
+                Type = "AudioPlayer.Play",
+                PlayBehavior = "REPLACE_ALL",
+                AudioItem = new AudioItem()
+                {
+                    Stream = new Stream()
+                    {
+                        Token = "episode",
+                        Url = latestEpisodeUrl,
+                        OffsetInMilliseconds = 0
+                    }
+                }
+            };
+
+            string speechOutput = "";
+            return BuildSpeechletResponse(intent.Name, speechOutput, true, directive);
+        }
+
+        private SpeechletResponse PlayRandomPodcast(Intent intent)
+        {
 
             string url = "http://www.tested.com/podcast-xml/this-is-only-a-test/";
             XmlReader reader = XmlReader.Create(url);
@@ -107,9 +151,8 @@ namespace Sample.Controllers
             };
 
             string speechOutput = "";
-            return BuildSpeechletResponse(intent.Name, speechOutput, false, directive);
+            return BuildSpeechletResponse(intent.Name, speechOutput, true, directive);
         }
-
 
         public override void OnSessionEnded(SessionEndedRequest request, Session session)
         {
